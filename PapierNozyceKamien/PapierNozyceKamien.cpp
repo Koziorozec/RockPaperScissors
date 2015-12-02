@@ -6,6 +6,9 @@
 #include <ctime>
 #include <iostream>
 #include <array>
+#include <vector>
+#include <memory>
+#include <iomanip>
 
 enum Ruch { Papier, Nozyce, Kamien };
 enum Wynik { Remis, Wygral_Pierwszy, Wygral_Drugi };
@@ -26,47 +29,100 @@ public:
 
 
 class Gra {
-	std::array<int, 3> _ktoWygralPojedynek;
-	std::array<int, 3> _iloscPunktowWGrze;
-	std::array<int, 3> _iloscWygranychGier;
-	Gracz & _gracz1;
-	Gracz & _gracz2;
+	std::array<int, 3> _liczbaWygranychPojedynkow;
+	std::array<int, 3> _liczbaZwyciestwDlaDanejParyGraczy;
+	std::vector<std::unique_ptr<Gracz>> _gracze;
+
+	std::vector<std::vector<Wynik> > _wynikiPojedynkow;
 
 	std::array<std::array<Wynik, 3>, 3> _macierzWynikow;
 
+	Wynik walkaDwochGraczy(Gracz & gracz1,Gracz & gracz2) {
+
+		Ruch staryRuch1 = Papier;
+		Ruch staryRuch2 = Papier;
+		_liczbaZwyciestwDlaDanejParyGraczy[0] = _liczbaZwyciestwDlaDanejParyGraczy[1] = _liczbaZwyciestwDlaDanejParyGraczy[2] = 0;
+		for (int gra = 0;gra < 10;gra++) {
+			_liczbaWygranychPojedynkow[0] = _liczbaWygranychPojedynkow[1] = _liczbaWygranychPojedynkow[2] = 0;
+			for (int pojedynek = 0;pojedynek < 10000;pojedynek++) {
+				Ruch ruch1 = gracz1.ruch(staryRuch2);
+				Ruch ruch2 = gracz2.ruch(staryRuch1);
+				_liczbaWygranychPojedynkow[ktoWygral(ruch1, ruch2)]++;
+				staryRuch1 = ruch1;
+				staryRuch2 = ruch2;
+			}
+			_liczbaZwyciestwDlaDanejParyGraczy[pokazWynikiPojedynku()] += abs(_liczbaWygranychPojedynkow[Wygral_Drugi] - _liczbaWygranychPojedynkow[Wygral_Pierwszy]);
+
+		}
+		return zwrocWynikWalkiPomiedzyDwomaGraczami();
+	}
+
 
 public:
-	Gra(Gracz & gracz1, Gracz & gracz2) : _gracz1(gracz1), _gracz2(gracz2) {
+	Gra() {
 
 		_macierzWynikow[0] = { Remis, Wygral_Drugi, Wygral_Pierwszy };
 		_macierzWynikow[1] = { Wygral_Pierwszy, Remis, Wygral_Drugi };
 		_macierzWynikow[2] = { Wygral_Drugi, Wygral_Pierwszy, Remis };
 
-		_iloscPunktowWGrze[0] = _iloscPunktowWGrze[1] = _iloscPunktowWGrze[2] = 0;
+		_liczbaZwyciestwDlaDanejParyGraczy[0] = _liczbaZwyciestwDlaDanejParyGraczy[1] = _liczbaZwyciestwDlaDanejParyGraczy[2] = 0;
 		zeruj();
 	}
 	void graj() {
-
-		Ruch staryRuch1 = Papier;
-		Ruch staryRuch2 = Papier;
-		for (int gra = 0;gra < 10;gra++) {
-			zeruj();
-			for (int pojedynek = 0;pojedynek < 10000;pojedynek++) {
-				Ruch ruch1 = _gracz1.ruch(staryRuch2);
-				Ruch ruch2 = _gracz2.ruch(staryRuch1);
-				_ktoWygralPojedynek[ktoWygral(ruch1, ruch2)]++;
-				staryRuch1 = ruch1;
-				staryRuch2 = ruch2;
-			}
-			_iloscPunktowWGrze[pokazWynikiPojedynku()] += abs(_ktoWygralPojedynek[Wygral_Drugi] - _ktoWygralPojedynek[Wygral_Pierwszy]);
-			
+		_wynikiPojedynkow.resize(_gracze.size());
+		for (int i = 0;i < _wynikiPojedynkow.size();i++) {
+			_wynikiPojedynkow[i].resize(_gracze.size());
 		}
-		pokazWynikiGry();
+
+		for (int i = 0;i < _gracze.size();i++) {
+			for (int j = 0;j < _gracze.size();j++) {
+				if (i != j) {
+					_wynikiPojedynkow[i][j]=walkaDwochGraczy(*_gracze[i], *_gracze[j]);
+				}
+			}
+		}
 	}
+
+	void pokazKoncoweWyniki() {
+		std::vector<int> liczbaWygranych(_gracze.size());
+
+		std::cout << std::setw(2) << " ";
+		for (int i = 0;i < _gracze.size();i++) {
+			std::cout << std::setw(2) << i;
+		}
+		std::cout << std::endl;
+
+		for (int i = 0;i < _gracze.size();i++) {
+			std::cout << std::setw(2) << i << std::setw(2);
+			for (int j = 0;j < _gracze.size();j++) {
+				if (_wynikiPojedynkow[i][j] == Wygral_Pierwszy) {
+					liczbaWygranych[i]++;
+				}
+				std::cout << _wynikiPojedynkow[i][j] << " ";
+			}
+			std::cout << std::endl;
+		}
+		std::vector<std::pair<int, int> > paryKtoLiczbaWygranych;
+		for (int i = 0;i < liczbaWygranych.size();i++) {
+			paryKtoLiczbaWygranych.push_back(std::make_pair(i, liczbaWygranych[i]));
+		}
+
+		std::sort(paryKtoLiczbaWygranych.begin(), paryKtoLiczbaWygranych.end(),
+			[](const std::pair<int, int>& lhs, const std::pair<int, int>& rhs) {
+			return lhs.second > rhs.second; });
+
+		std::cout << std::endl;
+		for (int i = 0;i < paryKtoLiczbaWygranych.size();i++) {
+			std::cout << paryKtoLiczbaWygranych[i].first << std::setw(2) << paryKtoLiczbaWygranych[i].second << std::endl;
+		}
+	}
+
+
 	void zeruj() {
-		_ktoWygralPojedynek[0] = _ktoWygralPojedynek[1] = _ktoWygralPojedynek[2] = 0;
-		_gracz1.reset();
-		_gracz2.reset();
+		_liczbaWygranychPojedynkow[0] = _liczbaWygranychPojedynkow[1] = _liczbaWygranychPojedynkow[2] = 0;
+		for (auto & elem  : _gracze) {
+			elem->reset();
+		}
 	}
 
 	Wynik ktoWygral(Ruch ruchGracza1, Ruch ruchGracza2)const {
@@ -75,48 +131,35 @@ public:
 		return _macierzWynikow[ruchGracza1][ruchGracza2];
 	}
 	Wynik pokazWynikiPojedynku() {
-		for (int i = 0;i < _ktoWygralPojedynek.size();++i) {
-			std::cout << _ktoWygralPojedynek[i] << " ";
-		}
 
-		if (_ktoWygralPojedynek[Wygral_Pierwszy] == _ktoWygralPojedynek[Wygral_Drugi]) {
-			std::cout << "Remis!\n";
+		if (_liczbaWygranychPojedynkow[Wygral_Pierwszy] == _liczbaWygranychPojedynkow[Wygral_Drugi]) {
 			return Wynik::Remis;
 		}
 		else {
-			if (_ktoWygralPojedynek[Wygral_Pierwszy] > _ktoWygralPojedynek[Wygral_Drugi]) {
-				_iloscWygranychGier[Wygral_Pierwszy]++;
-				std::cout << "Pojedynek wygral gracz: "; _gracz1.przedstawSie(); std::cout << std::endl;
-				std::cout << "Zdobyl " << _ktoWygralPojedynek[Wygral_Pierwszy] - _ktoWygralPojedynek[Wygral_Drugi] << " punktow\n";
+			if (_liczbaWygranychPojedynkow[Wygral_Pierwszy] > _liczbaWygranychPojedynkow[Wygral_Drugi]) {
 				return Wynik::Wygral_Pierwszy;
 			}
 			else {
-				_iloscWygranychGier[Wygral_Drugi]++;
-				std::cout << "Pojedynek wygral gracz: "; _gracz2.przedstawSie(); std::cout << std::endl;
-				std::cout << "Zdobyl " << _ktoWygralPojedynek[Wygral_Drugi] - _ktoWygralPojedynek[Wygral_Pierwszy] << " punktow\n";
 				return Wynik::Wygral_Drugi;
 			}
 		}
 	}
-	void pokazWynikiGry()const {
-		std::cout << std::endl << std::endl << std::endl;
-		for (int i = 0;i < _iloscPunktowWGrze.size();++i) {
-			std::cout << _iloscPunktowWGrze[i] << " ";
-		}
-
-		if (_iloscPunktowWGrze[Wygral_Pierwszy] == _iloscPunktowWGrze[Wygral_Drugi]) {
-			std::cout << "Remis!\n";
+	Wynik zwrocWynikWalkiPomiedzyDwomaGraczami()const {
+		if (_liczbaZwyciestwDlaDanejParyGraczy[Wygral_Pierwszy] == _liczbaZwyciestwDlaDanejParyGraczy[Wygral_Drugi]) {
+			return Wynik::Remis;
 		}
 		else {
-			if (_iloscPunktowWGrze[Wygral_Pierwszy] > _iloscPunktowWGrze[Wygral_Drugi]) {
-				std::cout << "Gre wygral gracz: "; _gracz1.przedstawSie(); std::cout << std::endl;
-				std::cout << "Zdobyl " << _iloscPunktowWGrze[Wygral_Pierwszy] - _iloscPunktowWGrze[Wygral_Drugi] << " punktow\n";
+			if (_liczbaZwyciestwDlaDanejParyGraczy[Wygral_Pierwszy] > _liczbaZwyciestwDlaDanejParyGraczy[Wygral_Drugi]) {
+				return Wynik::Wygral_Pierwszy;
 			}
 			else {
-				std::cout << "Gre wygral gracz: "; _gracz2.przedstawSie(); std::cout << std::endl;
-				std::cout << "Zdobyl " << _iloscPunktowWGrze[Wygral_Drugi] - _iloscPunktowWGrze[Wygral_Pierwszy] << " punktow\n";
+				return Wynik::Wygral_Drugi;
 			}
 		}
+	}
+
+	void dodajGracza(std::unique_ptr<Gracz>&& gracz) {
+		_gracze.push_back(std::move(gracz));
 	}
 };
 
@@ -167,15 +210,33 @@ public:
 	virtual void przedstawSie() {
 		std::cout << "Tomasz Pedzimaz";
 	}
+
+
 };
 
 int main() {
 	srand(time(NULL));
+	
+	Gra gra;
 
-	Gracz1 gracz1;
-	Gracz2 gracz2;
-	Gra gra(gracz1, gracz2);
+	std::vector<std::unique_ptr<Gracz> > gamers;
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz1()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz1()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz1()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz1()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz2()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz2()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz2()));
+	gamers.emplace_back(std::unique_ptr<Gracz>(new Gracz2()));
+
+	for (auto & elem : gamers) {
+		gra.dodajGracza(std::move(elem));
+	}
+	
+
+
 	gra.graj();
+	gra.pokazKoncoweWyniki();
 	return 0;
 }
 
