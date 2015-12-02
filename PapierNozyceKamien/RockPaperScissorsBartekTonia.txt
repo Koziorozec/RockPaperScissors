@@ -1,0 +1,304 @@
+// PapierNozyceKamien.cpp : Defines the entry point for the console application.
+//
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <array>
+
+enum Ruch { Papier, Nozyce, Kamien };
+enum Wynik { Remis, Wygral_Pierwszy, Wygral_Drugi };
+
+
+
+std::ostream& operator<<(std::ostream& s, Ruch w)
+{
+	return s << ((w == Kamien) ? "Kamien" : (w == Papier) ? "Papier" : "Nozyce");
+}
+
+class Gracz {
+public:
+	virtual void przedstawSie() = 0;
+	virtual Ruch ruch(Ruch poprzedniRuchPrzeciwnika) = 0;
+	virtual void reset() = 0;
+};
+
+
+class Gra {
+	std::array<int, 3> _ktoWygralPojedynek;
+	std::array<int, 3> _ktoWygralGre;
+	Gracz & _gracz1;
+	Gracz & _gracz2;
+
+	std::array<std::array<Wynik, 3>, 3> _macierzWynikow;
+
+
+public:
+	Gra(Gracz & gracz1, Gracz & gracz2) : _gracz1(gracz1), _gracz2(gracz2) {
+
+		_macierzWynikow[0] = { { Remis, Wygral_Drugi, Wygral_Pierwszy } };
+		_macierzWynikow[1] = { { Wygral_Pierwszy, Remis, Wygral_Drugi } };
+		_macierzWynikow[2] = { { Wygral_Drugi, Wygral_Pierwszy, Remis } };
+
+		_ktoWygralGre[0] = _ktoWygralGre[1] = _ktoWygralGre[2] = 0;
+		zeruj();
+	}
+	void graj() {
+
+		Ruch staryRuch1 = Papier;
+		Ruch staryRuch2 = Papier;
+		for (int pojedynek = 0; pojedynek < 10; pojedynek++) {
+			for (int i = 0; i < 10000; i++) {
+				Ruch ruch1 = _gracz1.ruch(staryRuch2);
+				Ruch ruch2 = _gracz2.ruch(staryRuch1);
+				_ktoWygralPojedynek[ktoWygral(ruch1, ruch2)]++;
+				staryRuch1 = ruch1;
+				staryRuch2 = ruch2;
+			}
+			_ktoWygralGre[pokazWynikiPojedynku()] += abs(_ktoWygralPojedynek[Wygral_Drugi] - _ktoWygralPojedynek[Wygral_Pierwszy]);
+			zeruj();
+		}
+		pokazWynikiGry();
+	}
+	void zeruj() {
+		_ktoWygralPojedynek[0] = _ktoWygralPojedynek[1] = _ktoWygralPojedynek[2] = 0;
+		_gracz1.reset();
+		_gracz2.reset();
+	}
+
+	Wynik ktoWygral(Ruch ruchGracza1, Ruch ruchGracza2)const {
+
+
+		return _macierzWynikow[ruchGracza1][ruchGracza2];
+	}
+	Wynik pokazWynikiPojedynku()const {
+		for (int i = 0; i < _ktoWygralPojedynek.size(); ++i) {
+			std::cout << _ktoWygralPojedynek[i] << " ";
+		}
+
+		if (_ktoWygralPojedynek[Wygral_Pierwszy] == _ktoWygralPojedynek[Wygral_Drugi]) {
+			std::cout << "Remis!\n";
+			return Wynik::Remis;
+		}
+		else {
+			if (_ktoWygralPojedynek[Wygral_Pierwszy] > _ktoWygralPojedynek[Wygral_Drugi]) {
+				std::cout << "Pojedynek wygral gracz: "; _gracz1.przedstawSie(); std::cout << std::endl;
+				std::cout << "Zdobyl " << _ktoWygralPojedynek[Wygral_Pierwszy] - _ktoWygralPojedynek[Wygral_Drugi] << " punktow\n";
+				return Wynik::Wygral_Pierwszy;
+			}
+			else {
+				std::cout << "Pojedynek wygral gracz: "; _gracz2.przedstawSie(); std::cout << std::endl;
+				std::cout << "Zdobyl " << _ktoWygralPojedynek[Wygral_Drugi] - _ktoWygralPojedynek[Wygral_Pierwszy] << " punktow\n";
+				return Wynik::Wygral_Drugi;
+			}
+		}
+	}
+	void pokazWynikiGry()const {
+		std::cout << std::endl << std::endl << std::endl;
+		for (int i = 0; i < _ktoWygralGre.size(); ++i) {
+			std::cout << _ktoWygralGre[i] << " ";
+		}
+
+		if (_ktoWygralGre[Wygral_Pierwszy] == _ktoWygralGre[Wygral_Drugi]) {
+			std::cout << "Remis!\n";
+		}
+		else {
+			if (_ktoWygralGre[Wygral_Pierwszy] > _ktoWygralGre[Wygral_Drugi]) {
+				std::cout << "Gre wygral gracz: "; _gracz1.przedstawSie(); std::cout << std::endl;
+				std::cout << "Zdobyl " << _ktoWygralGre[Wygral_Pierwszy] - _ktoWygralGre[Wygral_Drugi] << " punktow\n";
+			}
+			else {
+				std::cout << "Gre wygral gracz: "; _gracz2.przedstawSie(); std::cout << std::endl;
+				std::cout << "Zdobyl " << _ktoWygralGre[Wygral_Drugi] - _ktoWygralGre[Wygral_Pierwszy] << " punktow\n";
+			}
+		}
+	}
+};
+
+
+class Gracz1 : public Gracz {
+	int v_r = 0;
+	int licz0 = 0;
+	int licz1 = 0;
+	int licznik_rand = 0;
+	Ruch Dawny;
+	Ruch Dawniejszy;
+	int STATY[9]; // kk, kp, kn, pk, pp, pn, nk, np, nn
+
+public:
+	Gracz1() { }
+	virtual Ruch ruch(Ruch poprzedniRuchPrzeciwnika) {
+		licz1++;
+		srand(0);
+		v_r = rand() % 3;
+		if (Ruch(v_r) == poprzedniRuchPrzeciwnika) {
+			licznik_rand++;
+		}
+
+		if (licznik_rand == licz1)
+		{
+			srand(0);
+			v_r = rand() % 3;
+			return Ruch(v_r - 1);
+		}
+
+
+		if (licz0 < 3)
+		{
+			if (licz0 == 1)
+			{
+				Dawniejszy = poprzedniRuchPrzeciwnika;
+				Dawny = poprzedniRuchPrzeciwnika;
+				licz0 = 2;
+			}
+			else
+			{
+				Dawny = poprzedniRuchPrzeciwnika;
+				licz0 = 3;
+			}
+		}
+		if (licz0 == 3)
+		{
+			Dawniejszy = Dawny;
+			Dawny = poprzedniRuchPrzeciwnika;
+		}
+
+
+		if (Dawniejszy == Ruch::Kamien)
+		{
+			if (Dawny == Ruch::Kamien)
+			{
+				STATY[0]++;
+			}
+			if (Dawny == Ruch::Papier)
+			{
+				STATY[1]++;
+			}
+			if (Dawny == Ruch::Nozyce)
+			{
+				STATY[2]++;
+			}
+
+		}
+		if (Dawniejszy == Ruch::Papier)
+		{
+			if (Dawny == Ruch::Kamien)
+			{
+				STATY[3]++;
+			}
+			if (Dawny == Ruch::Papier)
+			{
+				STATY[4]++;
+			}
+			if (Dawny == Ruch::Nozyce)
+			{
+				STATY[5]++;
+			}
+		}
+		if (Dawniejszy == Ruch::Nozyce)
+		{
+			if (Dawny == Ruch::Kamien)
+			{
+				STATY[6]++;
+			}
+			if (Dawny == Ruch::Papier)
+			{
+				STATY[7]++;
+			}
+			if (Dawny == Ruch::Nozyce)
+			{
+				STATY[8]++;
+			}
+		}
+
+		if (Dawny == Ruch::Kamien)
+		{
+			if (STATY[0] > STATY[1] && STATY[0] > STATY[2])
+			{
+				return Ruch::Papier;
+			}
+			if (STATY[1] > STATY[0] && STATY[1] > STATY[2])
+			{
+				return Ruch::Nozyce;
+			}
+			if (STATY[2] > STATY[1] && STATY[2] > STATY[0])
+			{
+				return Ruch::Kamien;
+			}
+		}
+		if (Dawny == Ruch::Papier)
+		{
+			if (STATY[3] > STATY[4] && STATY[3] > STATY[5])
+			{
+				return Ruch::Papier;
+			}
+			if (STATY[4] > STATY[3] && STATY[4] > STATY[5])
+			{
+				return Ruch::Nozyce;
+			}
+			if (STATY[5] > STATY[4] && STATY[5] > STATY[3])
+			{
+				return Ruch::Kamien;
+			}
+		}
+		if (Dawny == Ruch::Nozyce)
+		{
+			if (STATY[6] > STATY[7] && STATY[6] > STATY[8])
+			{
+				return Ruch::Papier;
+			}
+			if (STATY[7] > STATY[6] && STATY[7] > STATY[8])
+			{
+				return Ruch::Nozyce;
+			}
+			if (STATY[8] > STATY[7] && STATY[8] > STATY[6])
+			{
+				return Ruch::Kamien;
+			}
+		}
+		return Ruch::Kamien;
+	}
+
+	void przedstawSie() {
+		std::cout << "Bartek Tonia";
+	}
+	void reset() {
+		v_r = 0;
+		 licz0 = 0;
+		 licz1 = 0;
+		licznik_rand = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			STATY[i] = 0;
+		}
+	}
+};
+
+class Gracz2 : public Gracz {
+	int _licznik;
+public:
+	Gracz2() {
+		_licznik = 0;
+	}
+	virtual Ruch ruch(Ruch poprzedniRuchPrzeciwnika) {
+		return Ruch(rand() % 3);
+	}
+	void reset() {
+
+	}
+	virtual void przedstawSie() {
+		std::cout << "Tomasz Pedzimaz";
+	}
+};
+
+int main() {
+	char a;
+	srand(time(NULL));
+	Gracz1 gracz1;
+	Gracz2 gracz2;
+	Gra gra(gracz1, gracz2);
+	gra.graj();
+	std::cin >> a;
+	return 0;
+
+}
