@@ -1,4 +1,4 @@
-#include "GrzegorzKulinski.h"
+#include "RockPaperScissorsGrzegorzKulinski.h"
 
 Gracz3::Gracz3() : _gen( _rd() ), _dis( 0, 2 ) {
 	moje_ruchy.push_back( Papier );
