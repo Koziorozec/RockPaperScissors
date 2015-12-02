@@ -1,0 +1,31 @@
+class Gracz2 : public Gracz {
+
+private:
+    int liczba;
+
+public:
+
+    Gracz2() {
+	int a = time(NULL)+1337;
+    	srand(a);
+        liczba = 0;
+    }
+
+	virtual Ruch ruch(Ruch poprzedniRuchPrzeciwnika) {
+        int liczba = ( std::rand() % 3 );
+        
+            if (liczba == 0) {
+    			return Ruch::Papier; }
+    			
+    		else if (liczba == 1) {
+    			return Ruch::Nozyce; }
+    			
+    		else if (liczba == 2) {
+    			return Ruch::Kamien; }
+	}
+	void przedstawSie() {
+		std::cout << "Piotr Tabor - graczPacyfista";
+	}
+	void reset() {
+	}
+};
