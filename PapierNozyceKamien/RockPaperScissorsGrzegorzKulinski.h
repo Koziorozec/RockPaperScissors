@@ -1,5 +1,5 @@
-#ifndef GRZEGORZKULINSKI_H
-#define GRZEGORZKULINSKI_H
+#ifndef ROCKPAPERSCISSORSGRZEGORZKULINSKI_H
+#define ROCKPAPERSCISSORSGRZEGORZKULINSKI_H
 #include "gracz.h"
 #include<vector>
 #include<math.h>
@@ -55,4 +55,4 @@ private:
 };
 
 
-#endif // GRZEGORZKULINSKI_H
+#endif // ROCKPAPERSCISSORSGRZEGORZKULINSKI_H
