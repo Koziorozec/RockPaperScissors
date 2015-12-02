@@ -1,0 +1,89 @@
+   class Gracz1 : public Gracz{
+    int dawny = rand()%3;
+    int bardzo_dawny = rand()%3;
+    int moj_ruch = rand()%3;
+ 
+    public:
+    	Gracz1() {
+    		dawny;
+    		bardzo_dawny;
+    		moj_ruch;
+ 
+ 
+    	}
+ 
+    	virtual Ruch ruch(Ruch poprzedniRuchPrzeciwnika) {
+    		int bardzo_dawny = dawny;
+    		dawny = poprzedniRuchPrzeciwnika;
+ 
+			if (moj_ruch == 0 && dawny == 1){
+				if (bardzo_dawny == 1)
+					moj_ruch = 2;
+				else
+					moj_ruch = 1;
+			}
+ 
+			if (moj_ruch == 0 && dawny == 0 ){
+				if (bardzo_dawny == 0)
+					moj_ruch = 1;
+				else
+					moj_ruch = 2;
+			}			
+ 
+			if (moj_ruch == 0 && dawny == 2){
+				if (bardzo_dawny == 2)
+					moj_ruch = 0;
+				else
+					moj_ruch = 2;
+			}
+ 
+ 
+			if (moj_ruch == 2 && dawny == 0){
+				if (bardzo_dawny == 0)
+					moj_ruch = 1;
+				else
+					moj_ruch = 0;
+			}
+ 
+			if (moj_ruch == 2 && dawny == 2 )
+					moj_ruch = 0;
+ 
+ 
+			if (moj_ruch == 2 && dawny == 1){
+				if (bardzo_dawny == 1)
+					moj_ruch = 2;
+				else
+					moj_ruch = 0;
+			}
+ 
+ 
+			if (moj_ruch == 1 && dawny == 2){
+				if (bardzo_dawny == 2)
+					moj_ruch = 0;
+				else
+					moj_ruch = 1;
+			}
+ 
+			if (moj_ruch == 1 && dawny == 1 ){
+				if (bardzo_dawny == 1)	
+					moj_ruch = 2;
+				else
+					moj_ruch = 0;
+			}			
+ 
+			if (moj_ruch == 1 && dawny == 0){
+				if (bardzo_dawny == 0)
+					moj_ruch = 1;
+				else
+					moj_ruch = 2;
+			}
+ 
+			return Ruch(moj_ruch);	
+		}
+		void przedstawSie() {
+    		std::cout << "Damian";
+    	}
+    	void reset() {
+ 
+    	}
+    };
