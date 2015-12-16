@@ -1,0 +1,61 @@
+#include <iostream>
+#include <string>
+#include <ctime>
+
+
+int main()
+{
+    std::string Odpowiedz[] = {
+        "Witaj, nazywam sie Jan Bot.",
+        "Elo mistrzunio, jak tam wszystko?",
+        "Siemanko!",
+        "Jak leci?",
+        "Co słychac?"
+    };
+    
+    std::string Zegnaj[] = {
+        "Zegnaj",
+        "Papa!",
+        "Do napisania!"
+    };
+    
+   
+    std::string sTekst = "";
+    std::string sOdpowiedz = "";
+    std::string sZegnaj = "";
+    
+    while(1) {
+        std::cout << ">";
+        std::getline(std::cin, sTekst);
+        if (sTekst == "Papa")
+        {
+            int nZegnaj = rand() % 3;
+            sZegnaj = Zegnaj[nZegnaj];
+            std::cout << sZegnaj << std::endl;
+            break;
+            
+        }
+        else if (sTekst == "Ktora godzina?")
+        {
+            std::cout << "Jest godzina: " << __TIME__ <<std::endl;
+            std::cout << "Co jeszcze?" << std::endl;
+            
+        }
+        else if (sTekst == "Jaki dzis dzien?")
+        {
+            std::cout << "Dzis jest: "<< __DATE__ <<std::endl;
+            std::cout << "Co jeszcze?" << std::endl;
+        }
+        else
+        {
+        int nOdezwijsie = rand() % 5;
+        sOdpowiedz = Odpowiedz[nOdezwijsie];
+        std::cout << sOdpowiedz << std::endl;
+        }
+    }
+    
+
+    return 0;
+}
+
+
