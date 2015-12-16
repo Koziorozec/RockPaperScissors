@@ -10,23 +10,7 @@
 #include <memory>
 #include <iomanip>
 
-enum Ruch { Papier, Nozyce, Kamien };
-enum Wynik { Remis, Wygral_Pierwszy, Wygral_Drugi };
-
-
-
-std::ostream& operator<<(std::ostream& s, Ruch w)
-{
-	return s << ((w == Kamien) ? "Kamien" : (w == Papier) ? "Papier" : "Nozyce");
-}
-
-class Gracz {
-public:
-	virtual void przedstawSie() = 0;
-	virtual Ruch ruch(Ruch poprzedniRuchPrzeciwnika) = 0;
-	virtual void reset() = 0;
-};
-
+#include "PapierNozyceKamien.h"
 
 class Gra {
 	std::array<int, 3> _liczbaWygranychPojedynkow;
@@ -84,6 +68,7 @@ public:
 	}
 
 	void pokazKoncoweWyniki() {
+		std::cout << "tabela wyników botów\n";
 		std::vector<int> liczbaWygranych(_gracze.size());
 
 		std::cout << std::setw(2) << " ";
@@ -111,9 +96,13 @@ public:
 			[](const std::pair<int, int>& lhs, const std::pair<int, int>& rhs) {
 			return lhs.second > rhs.second; });
 
+		std::cout << "posortowane wyniki botów\n";
 		std::cout << std::endl;
 		for (int i = 0;i < paryKtoLiczbaWygranych.size();i++) {
-			std::cout << paryKtoLiczbaWygranych[i].first << std::setw(2) << paryKtoLiczbaWygranych[i].second << std::endl;
+			std::cout << paryKtoLiczbaWygranych[i].first;
+			std::cout << std::setw(20);
+			_gracze[paryKtoLiczbaWygranych[i].first]->przedstawSie();
+			std::cout  << " " << std::setw(2) << paryKtoLiczbaWygranych[i].second << std::endl;
 		}
 	}
 
