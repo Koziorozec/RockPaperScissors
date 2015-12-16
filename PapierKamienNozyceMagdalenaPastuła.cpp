@@ -1,4 +1,4 @@
-Magdalena
+Magdalena Pastula
 
 // PapierNozyceKamien.cpp : Defines the entry point for the console application.
 //
@@ -167,8 +167,8 @@ public:
 };
 
 class Gracz3 : public Gracz {
-	Ruch.2
-	Ruch.1
+	Ruch.2;
+	Ruch.1;
 public:
 	Gracz3() {
 		Ruch.2 = Ruch::Kamien;
@@ -194,7 +194,12 @@ public:
 			if (suma == 3)
 				return Ruch::Papier
 			}
-		
+    }
+  
+  virtual void przedstawSie() {
+		std::cout << "Magdalena Pastuła";
+	}
+}
 		
 
 int main(){
