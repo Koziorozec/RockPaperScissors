@@ -1,0 +1,114 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <stdio.h>
+#include <string.h>
+
+using namespace std;
+
+vector<string> split(char b [256])
+{
+	vector<string> wyrazy;
+	string wyraz;
+	
+	char * temp = new char[256];
+	temp = strtok (b," ,.-");
+	while (temp != NULL)
+	{
+		wyraz = temp;
+		wyrazy.push_back(wyraz);
+		temp = strtok (NULL, " ,.-");
+	}
+	delete[] temp;
+	return wyrazy;
+}
+
+void wypisz(vector<string> slowa)
+{
+	for (unsigned i=0; i<slowa.size(); i++)
+		cout << slowa[i] << endl;
+}
+
+string wygenerujOdpowiedz(vector<string> slowa)
+{
+	string odp="";
+	
+	string a="elo";
+	string b="yol";
+	string c="czesc";
+	string d="graba";
+	string e="grabula";
+	string f="strzala";
+	string g="strzaleczka";
+	string h="siemasz";
+	string j="siema";
+	string k="witam";
+	string l="witaj";
+	string m="czolem";
+	string o="piona";
+	string p="hej";
+	string r="hejka";
+	string s="hejo";
+	string t="heja";
+	
+	for (unsigned i=0; i<slowa.size(); i++)
+	{
+		if (slowa[i] == a) {odp = "czesc"; break;}
+		else if (slowa[i] == a) {odp = "czesc"; break;}
+		else if (slowa[i] == b) {odp = "czesc"; break;}
+		else if (slowa[i] == c) {odp = "czesc"; break;}
+		else if (slowa[i] == d) {odp = "czesc"; break;}
+		else if (slowa[i] == e) {odp = "czesc"; break;}
+		else if (slowa[i] == f) {odp = "czesc"; break;}
+		else if (slowa[i] == g) {odp = "czesc"; break;}
+		else if (slowa[i] == h) {odp = "czesc"; break;}
+		else if (slowa[i] == j) {odp = "czesc"; break;}
+		else if (slowa[i] == k) {odp = "czesc"; break;}
+		else if (slowa[i] == l) {odp = "czesc"; break;}
+		else if (slowa[i] == m) {odp = "czesc"; break;}
+		else if (slowa[i] == o) {odp = "czesc"; break;}
+		else if (slowa[i] == p) {odp = "czesc"; break;}
+		else if (slowa[i] == r) {odp = "czesc"; break;}
+		else if (slowa[i] == s) {odp = "czesc"; break;}
+		else if (slowa[i] == t) {odp = "czesc"; break;}
+		else {odp = "spadaj kolo";}
+		
+	}
+	for (unsigned i=0; i<slowa.size()-2; i++)
+	{
+		if (slowa[i] == "jak" && slowa[i+1]=="sie" && slowa[i+2]=="masz")
+		{
+			odp = "czesc, dobrze"; break;
+		}
+		else
+		{
+			odp = "spadaj kolo";
+		}
+	}
+	for (unsigned i=0; i<slowa.size()-1; i++)
+	{
+		if (slowa[i] == "dzien" && slowa[i+1] == "dobry")
+		{
+			odp = "witam"; break;
+		}	
+	}
+	return odp;
+}
+
+int main()
+{
+	string a, odp;
+	vector<string> wyry;
+	char b [256];
+	
+	while (1)
+	{
+		cout << "Napisz cos:" << endl;
+		gets (b); 
+		wyry = split(b);
+//		wypisz(wyry);
+		odp = wygenerujOdpowiedz(wyry);
+		cout << odp << endl;
+	}
+	return 0;
+}
