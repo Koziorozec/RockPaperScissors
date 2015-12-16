@@ -1,0 +1,24 @@
+#include <iostream>
+#include <string>
+
+class chat{
+  string tekst1;
+  std::cin>>tekst1;
+    
+  for( int i=0; i < tekst1.size(); i++){
+      tekst1[i] = tolower(tekst1[i]);
+}
+
+  if (tekst1=="siemka" || tekst1=="czesc" || tekst1=="elo" || tekst1=="hej" || tekst1=="hello" || tekst1=="hi" || tekst1=="siema" || tekst1=="witaj"){
+    std::cout<<"Czesc"<<std::endl;
+  }
+  if (tekst1.find("pogoda")!= std::string::npos){
+    std::cout<<"Pogoda jest ładna. Jest bezchmurnie, temperatura wynosi 8 stopni"<<std::endl;
+}
+  if (tekst1=="pa" || tekst1=="bye" || tekst1=="zegnam" || tekst1== "do widzenia"){
+    std::cout<<"Do zobaczenia ;)"<<std::endl;
+}
+  else{
+    std::cout<<"Nie rozumiem :("<<std::endl;
+}
+}
